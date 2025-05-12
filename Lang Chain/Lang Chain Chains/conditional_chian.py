@@ -9,11 +9,11 @@ from langchain.schema.runnable import RunnableBranch, RunnableLambda
 load_dotenv()
 
 llm = HuggingFaceEndpoint(
-    repo_id = 'TinyLlama/TinyLlama-1.1B-Chat-v1.0',
+    repo_id = 'HuggingFaceH4/zephyr-7b-beta',
     task = 'text-generation'
 )
 model = ChatHuggingFace(llm = llm)
-parser = StrOutputParser()
+parser1 = StrOutputParser()
 
 
 class feedback(BaseModel):
@@ -29,11 +29,12 @@ prompt1 = PromptTemplate(
     partial_variables={'format_instruction':parser2.get_format_instructions()}
 )
 
-classifier_chain = prompt1 | model | parser
+classifier_chain = prompt1 | model | parser2
 
 prompt2 = PromptTemplate(
-    template='write an appropriate resopnes ot this positive feedback \n {feedback}',
-    input_variables=['feedback']
+    input_variables=['feedback'],
+    template='write an appropriate resopnes ot this positive feedback \n {feedback}'
+
 )
 
 prompt3 = PromptTemplate(
@@ -42,8 +43,8 @@ prompt3 = PromptTemplate(
 )
 
 branch_chain = RunnableBranch(
-    (lambda x:x['sentiment'] == 'positive',prompt2 | model | parser),
-    (lambda x:x['sentiment'] == 'negative', prompt3 | model | parser),
+    (lambda x:x.sentiment == 'positive',prompt2 | model | parser1),
+    (lambda x:x.sentiment == 'negative', prompt3 | model | parser1),
     RunnableLambda(lambda x: "could not find sentiment")
 )
 

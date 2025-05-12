@@ -7,7 +7,7 @@ from langchain.schema.runnable import RunnableParallel
 load_dotenv()
 
 llm = HuggingFaceEmbeddings(
-    repo_id = '',
+    repo_id = 'HuggingFaceH4/zephyr-7b-beta',
     task = 'text-generation'
 )
 model1 = ChatHuggingFace(llm = llm)
